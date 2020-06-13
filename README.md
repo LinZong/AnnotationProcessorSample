@@ -230,7 +230,7 @@ We also need an entry to registry this annotation processor to the compiler in o
 
 Java uses a `META-INF` directory to store additional information about a Java program. As for annotation processor, all of them should be registered in the file  `META-INF/services/javax.annotation.processing.Processor`.
 
-![image-20200613222615714](.\tutorials\image-20200613222615714.png)
+![image-20200613222615714](./tutorials/image-20200613222615714.png)
 
 It must be very annoyed registering all of the annotation processors appeared to such file. Fortunately, Google provides a library named `auto-service` to help us do such work in a handy way. Just annotate your annotation processor class with `AutoService(Processor.class)`, the `auto-service` will help us register our processor to `META-INF`.
 
@@ -532,25 +532,25 @@ public class Main {
 
 首先打开IDEA的设置，找到Annotation Processor项，把看到的三个项目都打钩上Enable annotation processing。如下图所示
 
-![image-20200613231821073](.\tutorials\image-20200613231821073.png)
+![image-20200613231821073](./tutorials/image-20200613231821073.png)
 
 然后再打开当前项目的设置，找到`person-builder`(需要提示注解处理器生成的代码的项目)，找到target/generated-sources/annotations文件夹，选中它，再点一下source。这个文件夹会放所有编译过程中生成的源代码文件。我们需要让IDEA认为这个文件夹也是一个“存放源代码”的文件夹，以便IDEA索引文件中的关键词，进行代码高亮。如下图所示：
 
-![image-20200613232102697](.\tutorials\image-20200613232102697.png)
+![image-20200613232102697](./tutorials/image-20200613232102697.png)
 
 
 
 这样一来，我们也可以在IDEA中直接按下Shift+F10运行项目。为了看到效果，可以先在Terminal中执行一句`mvn clean`，把maven编译好的结果全部清掉。这个时候PersonBuilder类提示找不到引用。
 
-![image-20200613232305160](.\tutorials\image-20200613232305160.png)
+![image-20200613232305160](./tutorials/image-20200613232305160.png)
 
 按下Ctrl+F9编译此项目。等待编译完成后PersonBuilder引用就又找到了。
 
-![image-20200613232327415](.\tutorials\image-20200613232327415.png)
+![image-20200613232327415](./tutorials/image-20200613232327415.png)
 
 最后再按下Shift+F10运行，正常运行出结果。
 
-![image-20200613232347554](.\tutorials\image-20200613232347554.png)
+![image-20200613232347554](./tutorials/image-20200613232347554.png)
 
 ### 4. Debug your Annotation Processor
 
@@ -564,11 +564,11 @@ public class Main {
 
 首先需要配置一个IDEA远程调试的Configuration。
 
-![image-20200613232924613](.\tutorials\image-20200613232924613.png)
+![image-20200613232924613](./tutorials/image-20200613232924613.png)
 
 按照下图所示进行设置：
 
-![image-20200613232950611](.\tutorials\image-20200613232950611.png)
+![image-20200613232950611](./tutorials/image-20200613232950611.png)
 
 Debugger模式为Attach，选一个你喜欢的端口，这里笔者选了8000，**然后注意一定要把use module classpath设置为你写的注解处理器的模块！**IDEA将会从这个模块中搜索源代码，和调试器中正在执行的字节码相匹配，显示出断点效果。
 
@@ -582,7 +582,7 @@ Debugger模式为Attach，选一个你喜欢的端口，这里笔者选了8000�
 
 接下来配置IDEA内置编译器选项
 
-![image-20200613234150772](.\tutorials\image-20200613234150772.png)
+![image-20200613234150772](./tutorials/image-20200613234150772.png)
 
 找到Build, Execution, Deployment -> Compiler -> Shared build process VM Options: 输入以下内容
 
@@ -598,7 +598,7 @@ Debugger模式为Attach，选一个你喜欢的端口，这里笔者选了8000�
 
 完成这些配置之后。在IDEA右上角切换当前调试的配置文件：
 
-![image-20200613234425304](.\tutorials\image-20200613234425304.png)
+![image-20200613234425304](./tutorials/image-20200613234425304.png)
 
 然后在注解处理器中打下断点，点击Rebuild project之后马上按下Shift+F9 (开始调试的快捷键)，如果配置正确，则当你的注解处理器开始处理源代码文件时，IDEA将会命中断点。此时即可单步调试注解处理器。
 
