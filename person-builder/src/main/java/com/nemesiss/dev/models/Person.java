@@ -13,4 +13,8 @@ public class Person {
 
     @BuilderProperty
     private String name;
+
+    @BuilderProperty
+    private int age;
+
 }

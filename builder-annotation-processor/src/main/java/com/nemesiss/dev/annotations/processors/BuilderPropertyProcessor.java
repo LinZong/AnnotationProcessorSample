@@ -8,6 +8,8 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
@@ -23,7 +25,6 @@ import java.util.stream.Collectors;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
 public class BuilderPropertyProcessor extends AbstractProcessor {
-
 
     static class BuilderFieldProperty {
 
@@ -58,7 +59,11 @@ public class BuilderPropertyProcessor extends AbstractProcessor {
             }
         }
 
-        public void generateCode(PrintWriter pw, String builderClassName, String setterReceiveTargetName) {
+        public void generateCode(PrintWriter pw, String builderClassName, String setterReceiveTargetName, ProcessingEnvironment processingEnv) {
+            if (setterElement == null) {
+                notifyErroneouslyAnnotatedElements(element, processingEnv);
+                return;
+            }
             pw.write("    public " + builderClassName + " set" + firstCharUppercaseIfNeeded(fieldName) + "(" + fullTypeClassName + " value) { \n");
             pw.write("        " + setterReceiveTargetName + "." + setterTextName + "(value);\n");
             pw.write("        return this;\n");
@@ -71,7 +76,6 @@ public class BuilderPropertyProcessor extends AbstractProcessor {
             List<? extends TypeMirror> candidateMethodParams = ((ExecutableType) setterCandidate.asType()).getParameterTypes();
             boolean methodNameValid = setterCandidate.getSimpleName().toString().equalsIgnoreCase(setterTextName);
             boolean paramValid = candidateMethodParams.size() == 1 && candidateMethodParams.get(0).toString().equals(fullTypeClassName);
-
             return isMethod && methodNameValid && paramValid;
         }
 
@@ -95,6 +99,11 @@ public class BuilderPropertyProcessor extends AbstractProcessor {
 
     private static void printMessage(String message, ProcessingEnvironment processingEnv, Element element) {
         processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, message, element);
+    }
+
+    @Override
+    public synchronized void init(ProcessingEnvironment processingEnv) {
+        super.init(processingEnv);
     }
 
     @Override
@@ -148,7 +157,11 @@ public class BuilderPropertyProcessor extends AbstractProcessor {
             // Write receive object.
             pw.write("    private " + classSimpleName + " " + receiveObjectName + " = new " + classSimpleName + "();\n");
 
-            builderFieldProperties.forEach(properties -> properties.generateCode(pw, builderSimpleName, receiveObjectName));
+            builderFieldProperties.forEach(properties -> properties.generateCode(
+                    pw,
+                    builderSimpleName,
+                    receiveObjectName,
+                    processingEnv));
 
             // Write build up object code.
 

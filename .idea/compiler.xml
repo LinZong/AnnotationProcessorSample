@@ -2,6 +2,7 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <option name="BUILD_PROCESS_HEAP_SIZE" value="1024" />
+    <option name="BUILD_PROCESS_ADDITIONAL_VM_OPTIONS" value="-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000" />
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true">
         <outputRelativeToContentRoot value="true" />
@@ -17,8 +18,9 @@
         <module name="builder-annotation-processor" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="8">
-      <module name="person-with-builder" target="1.8" />
-    </bytecodeTargetLevel>
+    <bytecodeTargetLevel target="8" />
+  </component>
+  <component name="JavacSettings">
+    <option name="PREFER_TARGET_JDK_COMPILER" value="false" />
   </component>
 </project>

@@ -26,8 +26,6 @@
             <version>${auto-service.version}</version>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
-
 
 </project>
