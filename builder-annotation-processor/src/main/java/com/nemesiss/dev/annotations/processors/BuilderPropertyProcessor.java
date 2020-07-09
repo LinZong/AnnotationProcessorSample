@@ -18,7 +18,9 @@ import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @SupportedAnnotationTypes("com.nemesiss.dev.annotations.BuilderProperty")
@@ -27,6 +29,10 @@ import java.util.stream.Collectors;
 public class BuilderPropertyProcessor extends AbstractProcessor {
 
     static class BuilderFieldProperty {
+
+        String belongToClassQualifiedName;
+
+        String belongToClassSimpleName;
 
         Element element;
 
@@ -57,6 +63,10 @@ public class BuilderPropertyProcessor extends AbstractProcessor {
             if (!filteredSetterElements.isEmpty()) {
                 setterElement = filteredSetterElements.get(0);
             }
+
+            belongToClassQualifiedName = ((TypeElement) element.getEnclosingElement()).getQualifiedName().toString();
+            int lastDot = belongToClassQualifiedName.lastIndexOf('.');
+            belongToClassSimpleName = belongToClassQualifiedName.substring(lastDot + 1);
         }
 
         public void generateCode(PrintWriter pw, String builderClassName, String setterReceiveTargetName, ProcessingEnvironment processingEnv) {
@@ -78,6 +88,7 @@ public class BuilderPropertyProcessor extends AbstractProcessor {
             boolean paramValid = candidateMethodParams.size() == 1 && candidateMethodParams.get(0).toString().equals(fullTypeClassName);
             return isMethod && methodNameValid && paramValid;
         }
+
 
         private static String firstCharUppercaseIfNeeded(String target) {
             StringBuilder sb = new StringBuilder(target);
@@ -113,15 +124,21 @@ public class BuilderPropertyProcessor extends AbstractProcessor {
 
         Set<? extends Element> fieldElements = ElementFilter.fieldsIn(annotatedElements);
 
-        List<BuilderFieldProperty> builderFieldProperties = fieldElements.stream().map(BuilderFieldProperty::new).collect(Collectors.toList());
+        List<BuilderFieldProperty> builderFieldProperties = fieldElements
+                .stream()
+                .map(BuilderFieldProperty::new)
+                .collect(Collectors.toList());
+        Map<String, List<BuilderFieldProperty>> files = builderFieldProperties
+                .stream()
+                .collect(Collectors.groupingBy(x -> x.belongToClassQualifiedName));
 
-        if (!builderFieldProperties.isEmpty()) {
+        files.values().forEach(x -> {
             try {
-                generateSourceFile(builderFieldProperties);
+                generateSourceFile(x);
             } catch (IOException e) {
-                e.printStackTrace();
+                printMessage(e.toString(), processingEnv, null);
             }
-        }
+        });
         return true;
     }
 
